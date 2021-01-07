@@ -5,8 +5,8 @@ from database import Database
 class User:
 
     def __init__(self):
-        self.id = None
         self.username = None
+        self.id = None
         self.password = None
         self.protect = None
         self.age = None
@@ -70,8 +70,16 @@ class User:
             else:
                 print('Invalid option')
 
-    def add_to_db(self):
-        pass
+    def user_from_import(self, username, id, password, protect, age, height, weight, gender):
+        self.username = username
+        self.id = id
+        self.password = password
+        self.protect = protect
+        self.age = age
+        self.height = height
+        self.weight = weight
+        self.gender = gender
+
 
     def add_from_db(self):
         pass

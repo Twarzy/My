@@ -15,6 +15,7 @@ class Database:
     def create_tables(self):
         # Create our main database table collecting all body measurements.
         self.cur.execute("""CREATE TABLE IF NOT EXISTS bodysize (
+                        id      VARCHAR(5),
                         date    INT,
                         weight  INT,
                         chest   INT,
@@ -31,7 +32,7 @@ class Database:
         # 4 digit PIN, there is also option to turn off account protection and login with 'blank' password.
         self.cur.execute("""CREATE TABLE IF NOT EXISTS users ( 
                         login      VARCHAR(20),
-                        id         VARCHAR(1), 
+                        id         VARCHAR(5), 
                         password   TEXT,
                         protection BOOLEAN,
                         age        INT,
@@ -49,13 +50,40 @@ class Database:
               """, (username, id_, password, protect, age, height, weight, gender))
         self.conn.commit()
 
-    # TODO: DOUBLE CHECK IF IT CANT BE DONE BETTER
+    def import_user(self,name):
+        self.cur.execute("SELECT * FROM users WHERE login=?", [name])
+        return self.cur.fetchall()[0]
+
+    # TODO: DOUBLE CHECK IF IT CANT BE DONE BETTER not static method
+
+    def db_login(self, username, password):
+        self.cur.execute("SELECT login, password FROM users WHERE login=?", [username])
+        login_data = self.cur.fetchall()
+        if login_data:
+            password_ = login_data[0][1]
+            if password != password_:
+                print('ERROR! Wrong password.\n')
+                return False
+            else:
+                print('Login success\n')
+                return True
+
+
+        else:
+            print('ERROR! Such user is not exist.\n')
+            return False
+
+
     @staticmethod
     def id_db_check():
         connect = sqlite3.connect('body_tracker_db.s3db')
         cursor = connect.cursor()
         cursor.execute('SELECT id FROM users')
         return [x[0] for x in cursor.fetchall()]
+
+    def connect(self):
+        connect = sqlite3.connect('body_tracker_db.s3db')
+        cursor = connect.cursor()
 
     def debuger(self):
 
