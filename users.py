@@ -16,6 +16,8 @@ class User:
 
     # User can choose to have password or login without it
     def new_user(self, name):
+        while not Database.user_exist(name):
+            name = input('Username already exist, please choose diffrent one:\n')
         self.username = name
         print(f'User "{self.username}" created.\n')
         self.id = self.id_maker()
