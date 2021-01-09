@@ -1,19 +1,20 @@
 import random
 from database import Database
 
-
+# User class for creating and storing temporary information about user: like login, password
 class User:
 
     def __init__(self):
         self.username = None
         self.id = None
         self.password = None
-        self.protect = None
+        self.protect = None # Boolean: False if user want to login without password
         self.age = None
         self.height = None
         self.weight = None
         self.gender = None
 
+    # User can choose to have password or login without it
     def new_user(self, name):
         self.username = name
         print(f'User "{self.username}" created.\n')
@@ -31,9 +32,10 @@ class User:
         elif option in ['2', '2.', 'No', 'no']:
             pass
 
+    # Generate unique 5 digit id for user
     @staticmethod
     def id_maker():
-
+        # Checking in database if ID is unique
         all_id = Database.id_db_check()
         new_id = ''.join([str(x) for x in random.sample(range(9), 5)])
 
@@ -41,6 +43,7 @@ class User:
         while new_id in all_id:
             new_id = ''.join([str(x) for x in random.sample(range(9), 5)])
         return new_id
+
 
     def more_info(self):
         while True:
@@ -80,10 +83,11 @@ class User:
         self.weight = weight
         self.gender = gender
 
-
+    # TODO
     def add_from_db(self):
         pass
 
+    # Infinite loop unless password will be strong enough or returning false if user don't want password
     def secure(self, pin_pass):
         if not pin_pass:
             self.protect = False
@@ -96,6 +100,7 @@ class User:
                 else:
                     pin_pass = input()
 
+    # Validate if password is strong enough
     @staticmethod
     def password_validator(pinpass):
         if len(pinpass) < 6:
