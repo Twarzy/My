@@ -70,6 +70,32 @@ class Database:
             print('ERROR! Such user is not exist.\n')
             return False
 
+    def bodysize_insert(self, id_num, date, weight, chest, arm_l, arm_r, abdomen, waist, hips, thigh, thigh_r):
+        self.cur.execute("""
+            INSERT INTO bodysize (id, date, weight, chest, arm_l, arm_r, abdomen, waist, hips, thigh_l, thigh_r)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (id_num, date, weight, chest, arm_l, arm_r, abdomen, waist, hips, thigh, thigh_r))
+        self.conn.commit()
+        print('Saved Successful')
+
+    def delete_user(self, id_num):
+        print(id_num)  # TO DELETE
+        option = input('Are you sure?\n'
+                       'Write your password to permanently delete you account and all data.\n')
+
+        self.cur.execute("SELECT password FROM users WHERE id=?", [id_num])
+        password = self.cur.fetchall()[0][0]
+
+        if not password or option == password:
+
+            self.cur.execute("DELETE FROM users WHERE id=?", [id_num])
+            self.conn.commit()
+            print('Account deleted.\n')
+            return True
+        else:
+            print('Cancelled.\n')
+            return False
+
     # TODO: DOUBLE CHECK IF IT CANT BE DONE BETTER not static method
 
     # Uses only to checking all ID's in database in User.id_maker() method
@@ -101,4 +127,3 @@ class Database:
         self.cur.execute('SELECT * from users')
         for i in self.cur.fetchall():
             print(i)
-

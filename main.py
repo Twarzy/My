@@ -4,40 +4,37 @@
 # analyze his progress. Password protected login for multiply user implemented.
 
 import time
+import sys
 from users import User
 from database import Database
 
 # Database file will be created in current working directory.
-program_database_filename = 'body_tracker_db.s3db'
+database_filename = 'body_tracker_db.s3db'
+
 
 # Class with program main loops.
 class Menu:
 
-    def __init__(self, db_filename):
-        # Instance of User class storing information about user: like login, password
-        self.user = User()
+    def __init__(self, db):
         # Instance of Database class with SQLite managing methods
-        self.database = Database(db_filename)
+        self.database = Database(db)
         self.header()
         self.start_menu()
-
+        self.user = User()
 
     # Main menu with two options: "login" or "create new user"
     def start_menu(self):
-        print('DEV TESTING - DELETE THIS'.center(79,'-'))
-        print(f'|  DEBUG: created class instance {type(self.user)}', '|'.rjust(25)) # DEV TESTING - DELETE THIS
-        print(f'|  DEBUG: created class instance {type(self.database)}', '|'.rjust(18)) # DEV TESTING - DELETE THIS
-        print('DEV TESTING - DELETE THIS'.center(79, '-'), '\n')
+        # Instance of User class storing information about user: like login, password
+        self.user = User()
 
         while True:
-            start = input('1. Login.\n2. Create new account.\n\n')
+            start = input('1. Login.\n2. Create new account.\n3. Quit\n4. About\n')
 
             if start in ['1', '1.', 'Login', 'login']:
                 name = input('Enter Username: \n')
                 password = input('Enter Password: \n')
                 if self.database.db_login(name, password):
                     self.login_menu(name)
-
 
             elif start in ['2', '2.', 'New', 'new']:
                 # Creating new user
@@ -51,23 +48,27 @@ class Menu:
                 print(f' User {self.user.username} updated in database.')
                 self.start_menu()  # Return to main menu
 
-            # DEV TESTING - DELETE THIS (Have to break main loop to get to testing and debugging data)
+            elif start in ['3', '3.', 'exit', 'EXIT', 'Exit', 'quit', 'Quit', 'QUIT']:
+                print('See you later!')
+                sys.exit()
+
+            elif start in ['4', '4.', 'about', 'About', 'ABOUT']:
+                pass
+
+            # DEV TESTING - DELETE THIS
             elif start == '0':
-                break
+                self.debugger_user()  # DEV TESTING - DELETE THIS
+                self.database.debuger()  # DEV TESTING - DELETE THIS
 
             # After inputting invalid options return to main menu (still in loop)
             else:
                 print('Invalid option. Please try again.\n')
 
-        self.debugger_user()  # DEV TESTING - DELETE THIS
-
-        self.database.debuger()  # DEV TESTING - DELETE THIS
-
     # Main Loop with menu option for logged user
     def login_menu(self, name):
         # After successful login update User instance with data stored in database
         self.user.user_from_import(*self.database.import_user(name))
-        self.debugger_user() # DEV TESTING - DELETE THIS
+        self.debugger_user()  # DEV TESTING - DELETE THIS
 
         while True:
             self.login_menu_header()
@@ -81,20 +82,22 @@ class Menu:
             elif option in ['4', '4.']:
                 pass
             elif option in ['5', '5.']:
-                self.user = User()
                 print('Logout complete')
                 self.start_menu()
+            elif option in ['6', '6.']:
+                if self.database.delete_user(self.user.id):
+                    self.start_menu()
 
             else:
                 print('Invalid option. Please try again.\n')
-
 
         # TODO historical data -> ilosc dni -> pick one
         # porównanie start-now
         # pick range of day
 
-    def add_measurement(self, id):
-        measurments = {'id': id,
+    def add_measurement(self, id_num):
+
+        measurments = {'id': id_num,
                        'date': time.time(),
                        'Weight':  None,
                        'Chest':   None,
@@ -102,7 +105,7 @@ class Menu:
                        'Right Biceps':   None,
                        'Abdomen': None,
                        'Waist':   None,
-                       'Hips' :   None,
+                       'Hips':   None,
                        'Left Thigh': None,
                        'Right Thight': None,
                        }
@@ -111,7 +114,11 @@ class Menu:
         print()
         for body, x in measurments.items():
             print(body, '-', x)
-
+        option = input('Save?\n1. Yes\n2. No.\n')
+        if option in ['1', '1.', 'Yes', 'yes']:
+            self.database.bodysize_insert(*list(measurments.values()))
+        else:
+            print('Canceled')
 
     def login_menu_header(self):
         print('-' * 79)
@@ -120,10 +127,9 @@ class Menu:
               '2. Previous measurements.\n'
               '3. My Progress.\n'
               '4. Settings(TODO:My data, change password, delete account)\n'
-              '5. Logout\n')
+              '5. Logout\n'
+              '6. DELETE account\n')
         print('-' * 79)
-
-
 
     # Simple header at after start of the program
     @staticmethod
@@ -149,5 +155,4 @@ class Menu:
 
 # PROGRAM INITIALIZATION
 
-Start = Menu(program_database_filename)
-
+Start = Menu(database_filename)

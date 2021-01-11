@@ -1,6 +1,7 @@
 import random
 from database import Database
 
+
 # User class for creating and storing temporary information about user: like login, password
 class User:
 
@@ -8,7 +9,7 @@ class User:
         self.username = None
         self.id = None
         self.password = None
-        self.protect = None # Boolean: False if user want to login without password
+        self.protect = None  # Boolean: False if user want to login without password
         self.age = None
         self.height = None
         self.weight = None
@@ -46,7 +47,6 @@ class User:
             new_id = ''.join([str(x) for x in random.sample(range(9), 5)])
         return new_id
 
-
     def more_info(self):
         while True:
             print(f'\n{self.username} INFO:'
@@ -75,9 +75,9 @@ class User:
             else:
                 print('Invalid option')
 
-    def user_from_import(self, username, id, password, protect, age, height, weight, gender):
+    def user_from_import(self, username, id_num, password, protect, age, height, weight, gender):
         self.username = username
-        self.id = id
+        self.id = id_num
         self.password = password
         self.protect = protect
         self.age = age
