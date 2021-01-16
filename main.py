@@ -73,20 +73,31 @@ class Menu:
         while True:
             self.login_menu_header()
             option = input(f'What You want to do {self.user.username}?:\n')
-            if option in ['1', '1.']:
+
+            if option in ['1', '1.']:  # new measurement
                 self.add_measurement(self.user.id)
-            elif option in ['2', '2.']:
+            elif option in ['2', '2.']:  # history
+
+
                 pass
-            elif option in ['3', '3.']:
+            elif option in ['3', '3.']:  # progress
+
                 pass
-            elif option in ['4', '4.']:
+            elif option in ['4', '4.']:  # settings
+
                 pass
-            elif option in ['5', '5.']:
+            elif option in ['5', '5.']:  # logout
+
                 print('Logout complete')
                 self.start_menu()
-            elif option in ['6', '6.']:
+            elif option in ['6', '6.']:  # del account
                 if self.database.delete_user(self.user.id):
                     self.start_menu()
+
+            # DEV TESTING - DELETE THIS
+            elif option in ['0']:
+                self.database.debugger_bodysize([self.user.id])
+
 
             else:
                 print('Invalid option. Please try again.\n')

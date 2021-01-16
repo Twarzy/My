@@ -1,4 +1,5 @@
 import sqlite3
+import datetime
 
 
 # Database class with SQLite managing methods
@@ -78,6 +79,10 @@ class Database:
         self.conn.commit()
         print('Saved Successful')
 
+    def user_measurments(self, id_num):
+        self.cur.execute("SELECT * FROM bodysize WHERE id=?", [id_num])
+
+
     def delete_user(self, id_num):
         print(id_num)  # TO DELETE
         option = input('Are you sure?\n'
@@ -95,6 +100,24 @@ class Database:
         else:
             print('Cancelled.\n')
             return False
+
+    def user_measurments(self, id_num):
+        keys = ['ID', 'Date', 'Weight', 'Chest', 'Left Arm', 'Right Arm', 'Abdomen', 'Waist',
+                'Hips', 'Left Thigh', 'Right thigh']
+        self.cur.execute("""SELECT date, weight, chest, arm_l, arm_r, abdomen, waist, hips, thigh_l, thigh_r
+                          FROM bodysize WHERE id=?""", [id_num])
+        user_data = self.cur.fetchall()
+
+        print(f'You have {len(user_data)} records in database')
+        option = input('Pick one day or write "0" for all:\n')
+        if option == '0':
+
+
+
+
+
+    def timedate_converter(self, timestamp):
+        return (datetime.datetime.fromtimestamp(timestamp).strftime('%d.%m.%y (%A)'))
 
     # TODO: DOUBLE CHECK IF IT CANT BE DONE BETTER not static method
 
@@ -127,3 +150,12 @@ class Database:
         self.cur.execute('SELECT * from users')
         for i in self.cur.fetchall():
             print(i)
+
+    def debugger_bodysize(self, id_num):
+
+        print('DATABASE DEBUGER - TO DELETE')
+        self.cur.execute('SELECT * from bodysize')
+        for i in self.cur.fetchall():
+            print(i)
+
+
