@@ -77,12 +77,11 @@ class Menu:
             if option in ['1', '1.']:  # new measurement
                 self.add_measurement(self.user.id)
             elif option in ['2', '2.']:  # history
+                self.database.user_measurments(self.user.id)
 
-
-                pass
             elif option in ['3', '3.']:  # progress
+                self.database.user_progress(self.user.id)
 
-                pass
             elif option in ['4', '4.']:  # settings
 
                 pass

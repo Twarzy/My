@@ -79,10 +79,6 @@ class Database:
         self.conn.commit()
         print('Saved Successful')
 
-    def user_measurments(self, id_num):
-        self.cur.execute("SELECT * FROM bodysize WHERE id=?", [id_num])
-
-
     def delete_user(self, id_num):
         print(id_num)  # TO DELETE
         option = input('Are you sure?\n'
@@ -102,22 +98,109 @@ class Database:
             return False
 
     def user_measurments(self, id_num):
-        keys = ['ID', 'Date', 'Weight', 'Chest', 'Left Arm', 'Right Arm', 'Abdomen', 'Waist',
-                'Hips', 'Left Thigh', 'Right thigh']
+        # Output user measurement data. User can pick to see all data at once
+        # TODO or select just specific date
+
         self.cur.execute("""SELECT date, weight, chest, arm_l, arm_r, abdomen, waist, hips, thigh_l, thigh_r
                           FROM bodysize WHERE id=?""", [id_num])
         user_data = self.cur.fetchall()
 
+        header_row = ['Date', 'Weight', 'Chest', 'Left Arm', 'Right Arm', 'Abdomen', 'Waist',
+                'Hips', 'Left Thigh', 'Right thigh']
+
         print(f'You have {len(user_data)} records in database')
         option = input('Pick one day or write "0" for all:\n')
         if option == '0':
+            #  Creating text table of all user data
+            new = []  # Variable needed to concatenete header_row and all measurement days
+            new.append(header_row)
+            for i in user_data:
+                new.append(i)
+            width = len(new) * 12  # Width for frame depending on table size, not working perfectly
+            print('-' * width, end='')  # top frame
+            for n in range(len(new[0])):
+                if n != 1:
+                    print()
+                for s in range(len(new)):
+                    if len(str(new[s][n])) > 15:  # Pick timestamp to convert it format
+                        print('{:6s} |'.format(self.timedate_converter_table(new[s][n])), end=' ')
+                    else:
+                        if s != 0:  # data cell
+                            if n == 1:  # second row is "weight"
+                                print('{:9s}|'.format(str(new[s][n]) + ' kg'), end=' ')
+                            else:  # in other cases we need to add "cm"
+                                print('{:9s}|'.format(str(new[s][n]) + ' cm'), end=' ')
+                        else:  # header row/column
+                            print('| {:12s}|'.format(str(new[s][n])), end=' ')
+                if n == 0:  # Create frame below date row
+                    print()
+                    print('*' * width)
+            print('\n', '-' * width)  # bottom frame
+            input('Press *ENTER* to continue.')
+
+    def user_progress(self, id_num):
+        self.cur.execute("""SELECT date, weight, chest, arm_l, arm_r, abdomen, waist, hips, thigh_l, thigh_r
+                                  FROM bodysize WHERE id=?""", [id_num])
+        user_data = self.cur.fetchall()
+        self.cur.execute("SELECT weight FROM users WHERE id=?",  [id_num])
+        start_weight = self.cur.fetchone()[0]
+
+        header_row = ['Date', 'Weight', 'Chest', 'Left Arm', 'Right Arm', 'Abdomen', 'Waist',
+                      'Hips', 'Left Thigh', 'Right thigh']
+
+        #  Creating text table of all user data
+        new = []  # Variable needed to concatenete header_row and all measurement days
+        new.extend([header_row, list(user_data[0]), user_data[-1]])
+        new[1][1] = start_weight  # Change weight from first measurement to weight from account creation
+
+        progress_kg = []
+        progress_perc = []
+        for n in range(len(new[0])):
+            progress_kg.append(new[2][n] - new[1][n])
 
 
+        for n in range(len(new[0])):
+            progress_perc.append(round(progress_kg[n] / new[1][n] * 100, 2))
+        progress_perc[0] = '%'
+        progress_kg[0] = 'KG'
+
+        new.extend([progress_kg, progress_perc])
+
+        width = len(new) * 12  # Width for frame depending on table size, not working perfectly
+        print('-' * width, end='')  # top frame
+        for n in range(len(new[0])):
+            if n != 1:
+                print()
+            for s in range(len(new)):
+                if n == 0:
+                    if len(str(new[s][n])) > 15:  # Pick timestamp to convert it format
+                        print('{:9s} |'.format(self.timedate_converter_table(new[s][n])), end=' ')
+                    else: print('| {:9}|'.format(str(new[s][n])), end=' ')
+
+                else:
+                    if s != 0:  # data cell
+
+                        if n == 1:  # second row is "weight"
+                            print('{:9s}|'.format(str(new[s][n]) + ' kg'), end=' ')
+                        else:  # in other cases we need to add "cm"
+                            print('{:9s}|'.format(str(new[s][n]) + ' cm'), end=' ')
+                    else:  # header row/column
+                        print('| {:12s}|'.format(str(new[s][n])), end=' ')
+            if n == 0:  # Create frame below date row
+                print()
+                print('*' * width)
+        print('\n', '-' * width)  # bottom frame
+        input('Press *ENTER* to continue.')
 
 
 
     def timedate_converter(self, timestamp):
+        #  Convert timestamp to "DD.MM.YY (day of the week)" format
         return (datetime.datetime.fromtimestamp(timestamp).strftime('%d.%m.%y (%A)'))
+
+    def timedate_converter_table(self, timestamp):
+    #  Convert timestamp to "DD.MM.YY" format
+        return (datetime.datetime.fromtimestamp(timestamp).strftime('%d.%m.%y'))
 
     # TODO: DOUBLE CHECK IF IT CANT BE DONE BETTER not static method
 
